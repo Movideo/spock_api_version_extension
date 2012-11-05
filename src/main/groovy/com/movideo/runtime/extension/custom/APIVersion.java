@@ -1,4 +1,4 @@
-package org.spockframework.runtime.extension.custom;
+package com.movideo.runtime.extension.custom;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

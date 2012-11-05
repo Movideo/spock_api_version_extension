@@ -3,7 +3,7 @@ apply plugin:'eclipse'
 apply plugin: 'maven'
 
 version = "1.0.0"
-group = 'org.spockframework'
+group = 'com.movideo'
 description = "spock api version extension"
 
 // Spock works with Java 1.5 and above
