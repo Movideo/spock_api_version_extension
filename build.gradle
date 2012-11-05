@@ -1,0 +1,32 @@
+apply plugin:'groovy'
+apply plugin:'eclipse'
+apply plugin: 'maven'
+
+version = "1.0.0"
+group = 'org.spockframework'
+description = "spock api version extension"
+
+// Spock works with Java 1.5 and above
+sourceCompatibility = 1.6
+
+repositories {
+	mavenCentral()
+}
+
+def spockVersion = '0.6-groovy-1.7'
+
+configurations.all {
+	exclude group: 'com.sun.jdmk', module: 'jmxtools'
+	exclude group: 'com.sun.jmx', module: 'jmxri'
+	exclude group: 'javax.jms', module: 'jms'
+}
+
+dependencies {
+	groovy 'org.codehaus.groovy:groovy-all:1.7.10'
+
+	compile "org.spockframework:spock-core:$spockVersion"
+	compile "org.codehaus.groovy.modules.http-builder:http-builder:0.5.2"
+	compile "log4j:log4j:1.2.15"
+}
+
+task wrapper(type: Wrapper) { gradleVersion = "1.0" }
