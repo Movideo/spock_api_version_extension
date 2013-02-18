@@ -32,7 +32,7 @@ class APIVersionExtension extends AbstractAnnotationDrivenExtension<APIVersion> 
 	 * <p>
 	 * Defaults to {@code LOCAL_END_POINT}
 	 */
-	private static final String envString = System.getProperties().getProperty("env", config.envHost);
+	private static final String envString = "http://" + System.getProperties().getProperty("env", config.envHost);
 
 	/**
 	 * Version REGX pattern
