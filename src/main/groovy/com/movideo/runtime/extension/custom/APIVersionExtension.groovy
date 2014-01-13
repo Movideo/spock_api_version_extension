@@ -20,43 +20,69 @@ class APIVersionExtension extends AbstractAnnotationDrivenExtension<APIVersion> 
 	/**
 	 * Logger
 	 */
-	private static final Log LOG = LogFactory.getLog(getClass());
+	private static final Log LOG = LogFactory.getLog(getClass())
 
-	private static final File defaultConfig = new File('src/test/resources/SpockConfig.groovy')
+	private static final defaultConfig = new File('src/test/resources/SpockConfig.groovy')
+
+	/**
+	 * Version REGX pattern
+	 */
+	private static final def VERSION_PATTERN = Pattern.compile(".", Pattern.LITERAL)
+
+	/**
+	 * Max version length
+	 */
+	private static final def MAX_VERSION_LENGTH = 4
 
 	/**
 	 * 
 	 */
-	private static def config = new ConfigSlurper().parse(System.getProperties().getProperty("spockConfig", defaultConfig)).toURL()
+	private static def configFile
 
 	/**
 	 * env environment variable
 	 * <p>
 	 * Defaults to {@code LOCAL_END_POINT}
 	 */
-	private static final String envString = "http://" + System.getProperties().getProperty("env", config.envHost);
-
-	/**
-	 * Version REGX pattern
-	 */
-	private static final def VERSION_PATTERN = Pattern.compile(".", Pattern.LITERAL);
-
-	/**
-	 * Max version length
-	 */
-	private static final def MAX_VERSION_LENGTH = 4;
+	private static String envString
 
 	/**
 	 * Current API Version
 	 */
-	private static final def CURRENT_API_VERSION = getDeployedAPIVersion();
+	private static def CURRENT_API_VERSION
+
+	static 
+	{
+		if(System.getProperties().getProperty("spockConfig") != null || System.getenv("spockConfig") != null)
+		{
+			if(System.getProperties().getProperty("spockConfig") != null)
+			{
+				configFile = new ConfigSlurper().parse(new File(System.getProperties().getProperty("spockConfig")).toURL())
+
+			}
+			else
+			{
+				configFile = new ConfigSlurper().parse(new File(System.getenv("spockConfig")).toURL())
+			}
+		}
+		else
+		{
+			configFile = new ConfigSlurper().parse(new File('src/test/resources/SpockConfig.groovy').toURL())
+		}
+
+		envString = "http://" + System.getProperties().getProperty("env", configFile.envHost)
+
+		CURRENT_API_VERSION = getDeployedAPIVersion()
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	void visitFeatureAnnotation(APIVersion annotation, FeatureInfo feature) {
-		if(!isApiVersionGreaterThanMinApiVersion(annotation, feature.name)) {
+	void visitFeatureAnnotation(APIVersion annotation, FeatureInfo feature) 
+	{
+		if(!isApiVersionGreaterThanMinApiVersion(annotation, feature.name)) 
+		{
 			feature.setSkipped(true)
 		}
 	}
@@ -65,8 +91,10 @@ class APIVersionExtension extends AbstractAnnotationDrivenExtension<APIVersion> 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void visitSpecAnnotation(APIVersion annotation, SpecInfo spec) {
-		if(!isApiVersionGreaterThanMinApiVersion(annotation, spec.name)) {
+	public void visitSpecAnnotation(APIVersion annotation, SpecInfo spec) 
+	{
+		if(!isApiVersionGreaterThanMinApiVersion(annotation, spec.name)) 
+		{
 			spec.setSkipped(true)
 		}
 	}
@@ -77,18 +105,22 @@ class APIVersionExtension extends AbstractAnnotationDrivenExtension<APIVersion> 
 	 * Performs a HTTP request to the current deployed API version. Parses the returned data and get the {@code version} node data.
 	 * @return current deployed API version
 	 */
-	private static String getDeployedAPIVersion() {
+	private static String getDeployedAPIVersion() 
+	{
 		def apiVersion = null
 
-		try {
+		try 
+		{
 			def client = new RESTClient(envString)
-			def resp = client.get(path : config.versionServiceUri)
+			def resp = client.get(path : configFile.versionServiceUri)
 
 			apiVersion = resp.data.version
 
 			LOG.info("Current deployed API version [" + apiVersion + "]");
-		} catch (ex) {
-			APIVersionError apiVersionError = new APIVersionError("Error occurred attempting to get current deployed API version from %s", envString + config.versionServiceUri);
+		} 
+		catch (ex) 
+		{
+			APIVersionError apiVersionError = new APIVersionError("Error occurred attempting to get current deployed API version from %s", envString + configFile.versionServiceUri);
 			apiVersionError.setStackTrace(ex.stackTrace);
 			
 			throw apiVersionError;
@@ -103,7 +135,8 @@ class APIVersionExtension extends AbstractAnnotationDrivenExtension<APIVersion> 
 	 * @param infoName
 	 * @return
 	 */
-	private boolean isApiVersionGreaterThanMinApiVersion(APIVersion annotation, String infoName) {
+	private boolean isApiVersionGreaterThanMinApiVersion(APIVersion annotation, String infoName) 
+	{
 		def isApiVersionGreaterThanMinApiVersion = true
 
 		def minApiVersionRequired = annotation.minimimApiVersion();
@@ -116,7 +149,8 @@ class APIVersionExtension extends AbstractAnnotationDrivenExtension<APIVersion> 
 		int cmp = apiVersionNormalised.compareTo(minApiVersionRequiredNormalised);
 
 		// if the comparison is less than 0, min API version is greater than the deployed API version
-		if(cmp < 0) {
+		if(cmp < 0) 
+		{
 			LOG.info("min api version [" + minApiVersionRequired + "] greater than api version [" + CURRENT_API_VERSION + "], skipping [" + infoName + "]")
 			isApiVersionGreaterThanMinApiVersion = false
 		}
@@ -129,11 +163,13 @@ class APIVersionExtension extends AbstractAnnotationDrivenExtension<APIVersion> 
 	 * @param version
 	 * @return
 	 */
-	private String normaliseVersion(String version) {
+	private String normaliseVersion(String version) 
+	{
 		String[] split = VERSION_PATTERN.split(version);
 		StringBuilder sb = new StringBuilder();
 
-		for (String s : split) {
+		for (String s : split) 
+		{
 			sb.append(String.format("%" + MAX_VERSION_LENGTH + 's', s));
 		}
 
