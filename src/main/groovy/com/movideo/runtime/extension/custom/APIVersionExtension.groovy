@@ -22,10 +22,12 @@ class APIVersionExtension extends AbstractAnnotationDrivenExtension<APIVersion> 
 	 */
 	private static final Log LOG = LogFactory.getLog(getClass());
 
+	private static final File defaultConfig = new File('src/test/resources/SpockConfig.groovy')
+
 	/**
 	 * 
 	 */
-	private static def config = new ConfigSlurper().parse(new File('src/test/resources/SpockConfig.groovy').toURL())
+	private static def config = new ConfigSlurper().parse(System.getProperties().getProperty("spockConfig", defaultConfig)).toURL()
 
 	/**
 	 * env environment variable

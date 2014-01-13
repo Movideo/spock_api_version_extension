@@ -7,13 +7,22 @@ group = 'com.movideo'
 description = "spock api version extension"
 
 // Spock works with Java 1.5 and above
-sourceCompatibility = 1.6
+sourceCompatibility = 1.7
 
 repositories {
-	mavenCentral()
-}
+        mavenLocal()
 
-def spockVersion = '0.6-groovy-1.7'
+        maven {
+            url "https://oss.sonatype.org/content/groups/public"
+        }
+
+        // Spock snapshots are available from the Sonatype OSS snapshot repository
+        maven {
+            url "http://oss.sonatype.org/content/repositories/snapshots"
+        }
+
+        mavenCentral()
+}
 
 configurations.all {
 	exclude group: 'com.sun.jdmk', module: 'jmxtools'
@@ -22,11 +31,17 @@ configurations.all {
 }
 
 dependencies {
-	groovy 'org.codehaus.groovy:groovy-all:1.7.10'
+	compile "org.codehaus.groovy:groovy-all:2.1.5"
 
-	compile "org.spockframework:spock-core:$spockVersion"
-	compile "org.codehaus.groovy.modules.http-builder:http-builder:0.5.2"
+	compile "org.spockframework:spock-core:1.0-groovy-2.0-SNAPSHOT"
+	
+	compile ("org.codehaus.groovy.modules.http-builder:http-builder:0.5.2") {
+            exclude group: 'commons-codec', module: 'commons-codec'
+    }
+
 	compile "log4j:log4j:1.2.15"
 }
 
-task wrapper(type: Wrapper) { gradleVersion = "1.0" }
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.7'
+}
